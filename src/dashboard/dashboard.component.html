@@ -1,0 +1,34 @@
+<div class="dashboard">
+  <h1>Historical Trading Data</h1>
+
+  <!-- Loading State -->
+  <p *ngIf="loading$ | async">Loading...</p>
+
+  <!-- Error State -->
+  <p *ngIf="error$ | async as error" style="color: red;">Error: {{ error }}</p>
+
+  <!-- Data Display -->
+  <ng-container *ngIf="historicalData$ | async as data">
+    <div class="metadata">
+      <p><strong>Symbol:</strong> {{ data.symbol }}</p>
+      <p><strong>Duration:</strong> {{ data.duration }}</p>
+      <p><strong>Bar Size:</strong> {{ data.bar_size }}</p>
+      <p><strong>Data Points:</strong> {{ data.data_points }}</p>
+      <p><strong>Created At:</strong> {{ data.created_at }}</p>
+    </div>
+
+    <h2>Data Points</h2>
+    <div class="data-points">
+      <div *ngFor="let point of data.data" class="data-point">
+        <p>
+          <strong>{{ point.date }}</strong> |
+          Open: {{ point.open }} |
+          High: {{ point.high }} |
+          Low: {{ point.low }} |
+          Close: {{ point.close }} |
+          Volume: {{ point.volume }}
+        </p>
+      </div>
+    </div>
+  </ng-container>
+</div>
