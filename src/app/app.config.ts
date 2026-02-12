@@ -3,17 +3,16 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
-
+import { dashboardFeature } from '../dashboard/store/dashboard.reducer';
+import { DashboardEffects } from '../dashboard/store/dashboard.effects';
 import { routes } from './app.routes';
-import { dashboardReducer } from '../dashboard/dashboard.reducer';
-import { DashboardEffects } from '../dashboard/dashboard.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
-    provideStore({ dashboard: dashboardReducer }),
+    provideStore({ [dashboardFeature.name]: dashboardFeature.reducer }),
     provideEffects([DashboardEffects]),
   ],
 };
