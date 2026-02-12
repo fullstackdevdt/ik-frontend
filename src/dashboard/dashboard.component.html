@@ -1,34 +1,86 @@
-<div class="dashboard">
-  <h1>Historical Trading Data</h1>
+<section class="dashboard" *ngIf="vm$ | async as vm">
+  <header class="dashboard__header">
+    <h1>📈 Historical Data Dashboard</h1>
+  </header>
 
-  <!-- Loading State -->
-  <p *ngIf="loading$ | async">Loading...</p>
-
-  <!-- Error State -->
-  <p *ngIf="error$ | async as error" style="color: red;">Error: {{ error }}</p>
-
-  <!-- Data Display -->
-  <ng-container *ngIf="historicalData$ | async as data">
-    <div class="metadata">
-      <p><strong>Symbol:</strong> {{ data.symbol }}</p>
-      <p><strong>Duration:</strong> {{ data.duration }}</p>
-      <p><strong>Bar Size:</strong> {{ data.bar_size }}</p>
-      <p><strong>Data Points:</strong> {{ data.data_points }}</p>
-      <p><strong>Created At:</strong> {{ data.created_at }}</p>
+  <!-- Controls -->
+  <div class="dashboard__controls">
+    <label class="dashboard__label" for="fileIdInput">File ID</label>
+    <div class="dashboard__input-group">
+      <input
+        id="fileIdInput"
+        class="dashboard__input"
+        type="text"
+        placeholder="e.g. 1764824399773"
+        [formControl]="fileIdControl"
+        (keydown.enter)="onLoadChart()"
+      />
+      <button
+        class="dashboard__btn dashboard__btn--primary"
+        [disabled]="fileIdControl.invalid || vm.loading"
+        (click)="onLoadChart()"
+      >
+        {{ vm.loading ? 'Loading…' : 'Load Chart' }}
+      </button>
+      <button
+        class="dashboard__btn dashboard__btn--secondary"
+        (click)="onReset()"
+        [disabled]="vm.loading"
+      >
+        Reset
+      </button>
     </div>
+    <p
+      class="dashboard__validation-error"
+      *ngIf="fileIdControl.touched && fileIdControl.invalid"
+    >
+      Please enter a valid file ID.
+    </p>
+  </div>
 
-    <h2>Data Points</h2>
-    <div class="data-points">
-      <div *ngFor="let point of data.data" class="data-point">
-        <p>
-          <strong>{{ point.date }}</strong> |
-          Open: {{ point.open }} |
-          High: {{ point.high }} |
-          Low: {{ point.low }} |
-          Close: {{ point.close }} |
-          Volume: {{ point.volume }}
-        </p>
+  <!-- Error Banner -->
+  <div class="dashboard__error-banner" *ngIf="vm.error" role="alert">
+    <strong>⚠ Error:</strong> {{ vm.error }}
+  </div>
+
+  <!-- Loading -->
+  <div class="dashboard__loading" *ngIf="vm.loading">
+    <div class="dashboard__spinner"></div>
+    <p>Fetching historical data…</p>
+  </div>
+
+  <!-- Chart -->
+  <div
+    class="dashboard__chart-wrapper"
+    [class.dashboard__chart-wrapper--visible]="vm.chartData && vm.chartData.labels.length > 0"
+  >
+    <div class="dashboard__chart-header" *ngIf="vm.metadata as meta">
+      <div class="dashboard__chart-title">
+        <h2>{{ meta.symbol }} — OHLC Chart</h2>
+        <div class="dashboard__metadata">
+          <span class="dashboard__metadata-item">
+            <strong>Duration:</strong> {{ meta.duration }}
+          </span>
+          <span class="dashboard__metadata-item">
+            <strong>Bar Size:</strong> {{ meta.barSize }}
+          </span>
+          <span class="dashboard__metadata-item">
+            <strong>Data Points:</strong> {{ meta.dataPoints }}
+          </span>
+        </div>
       </div>
     </div>
-  </ng-container>
-</div>
+    <div class="dashboard__canvas-container">
+      <canvas #chartCanvas></canvas>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    class="dashboard__empty"
+    *ngIf="!vm.chartData && !vm.loading && !vm.error"
+  >
+    <div class="dashboard__empty-icon">📊</div>
+    <p>Enter a file ID above and click <strong>Load Chart</strong> to visualize historical OHLC data.</p>
+  </div>
+</section>
