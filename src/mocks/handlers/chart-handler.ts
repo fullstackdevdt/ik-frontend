@@ -3,13 +3,29 @@ import { HistoricalBar } from '../../dashboard/models/dashboard.models';
 
 const BASE_URL = 'http://127.0.0.1:8000';
 
-const mockBars: HistoricalBar[] = [
-  { date: '2024-01-01', open: 150.25, high: 153.00, low: 149.50, close: 151.75, volume: 82000000 },
-  { date: '2024-01-02', open: 152.10, high: 154.80, low: 148.90, close: 149.90, volume: 75000000 },
-  { date: '2024-01-03', open: 149.80, high: 153.50, low: 149.00, close: 152.60, volume: 91000000 },
-  { date: '2024-01-04', open: 153.40, high: 156.00, low: 152.80, close: 154.20, volume: 68000000 },
-  { date: '2024-01-05', open: 155.00, high: 157.50, low: 154.50, close: 156.30, volume: 77000000 },
-];
+const COUNT = 33;
+
+function generateMockBars(count: number): HistoricalBar[] {
+  const bars: HistoricalBar[] = [];
+  let basePrice = 150 + Math.random() * 10;
+  const startDate = new Date('2024-01-01');
+
+  for (let i = 0; i < count; i++) {
+    const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+    const open = +(basePrice + (Math.random() - 0.5) * 4).toFixed(2);
+    const close = +(open + (Math.random() - 0.5) * 4).toFixed(2);
+    const high = +(Math.max(open, close) + Math.random() * 2).toFixed(2);
+    const low = +(Math.min(open, close) - Math.random() * 2).toFixed(2);
+    const volume = Math.floor(50_000_000 + Math.random() * 50_000_000);
+
+    bars.push({ date: date.toISOString().slice(0, 10), open, high, low, close, volume });
+    basePrice = close;
+  }
+
+  return bars;
+}
+
+const mockBars: HistoricalBar[] = generateMockBars(COUNT);
 
 export const chartHandlers = [
   http.get(`${BASE_URL}/json/load_historical/:fileId`, ({ params }) => {
